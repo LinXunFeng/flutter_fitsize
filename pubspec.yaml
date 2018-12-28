@@ -1,0 +1,17 @@
+name: flutter_fitsize
+description: A flutter app screen adaptation solution.
+version: 0.0.1
+author: LinXunFeng <xunfenghellolo@gmail.com>
+homepage: https://github.com/LinXunFeng/flutter_fitsize
+
+environment:
+  sdk: ">=2.0.0-dev.68.0 <3.0.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+flutter:
+  plugin:
+    androidPackage: com.example.flutterfitsize
+    pluginClass: FlutterFitsizePlugin

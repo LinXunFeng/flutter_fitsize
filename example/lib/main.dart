@@ -37,7 +37,8 @@ class _MyAppState extends State<MyApp> {
     print('fs> -- ${fs>40.0}');
     print('fs -- ${fs(40.0)}');
     print('fs.auto -- ${fs.auto(40.0)}');
-
+    print('fs.auto specify padFitMultiple -- ${fs.auto(40.0, padFitMultiple: 0.6)}');
+    
     // force
     print('fs>> -- ${fs>>40.0}');
     print('fs -- ${fs(40.0, isForce: true)}'); 

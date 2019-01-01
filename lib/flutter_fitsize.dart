@@ -12,34 +12,66 @@ class FlutterFitsize implements Function {
 
   final _mediaQueryData = MediaQuery(data: MediaQueryData.fromWindow(window), child: Container(),).data;
 
-  double referenceWidth = 375;
-  double padFitMultiple = 0.6;
+  double _referenceWidth = 375.0;
+  double _padFitMultiple = 0.5;
 
+  /// 设置全局配置
+  /// 
+  ///  * [referenceWidth], 参照宽度.
+  ///  * [padFitMultiple], pad 的缩放倍数.
   setup({double referenceWidth, double padFitMultiple}) {
     assert((padFitMultiple == null) || (padFitMultiple > 0) || (padFitMultiple <= 1));
     if ((referenceWidth ?? 0) > 0) {
-      this.referenceWidth = referenceWidth; 
+      this._referenceWidth = referenceWidth; 
     }
     if (padFitMultiple != null) {
-      this.padFitMultiple = padFitMultiple; 
+      this._padFitMultiple = padFitMultiple; 
     }
   }
 
-  double call(double value, {bool isForce = false}) {
-    return isForce ? _singleton>>value: _singleton>value;
+  /// 计算适配大小的核心方法
+  ///
+  ///  * [value], 需要适配的值.
+  ///  * [isForce], 是否为强制适配.
+  ///  * [padFitMultiple], 指定 pad 的缩放倍数.
+  double call(double value, {bool isForce = false, double padFitMultiple}) {
+    final forceValue = _fetchPortraitWidth() / _referenceWidth * value;
+    if (isForce || !_isPad()) return forceValue;
+    // isPad == true
+    if (padFitMultiple != null && (padFitMultiple > 0 || padFitMultiple <= 1)) {
+      return forceValue * padFitMultiple;
+    }
+    return forceValue * _padFitMultiple;
   }
 
-  double auto(double value) {
-    return fs(value);
+  /// 自动适配大小
+  /// 
+  /// 会自动判断 phone 和 pad，可指定 padFitMultiple
+  ///
+  ///  * [value], 需要适配的值.
+  ///  * [isForce], 是否为强制适配.
+  double auto(double value, {double padFitMultiple}) {
+    return fs(value, padFitMultiple : padFitMultiple);
   }
+
+  /// 强制适配大小
+  /// 
+  /// 会强制按比例计算相应的大小，不区分 phone 和 pad
+  ///
+  ///  * [value], 需要适配的值.
   double force(double value) {
     return fs(value, isForce: true);
   }
 
-  double operator >(double value) => this >> value*(isPad() ? padFitMultiple : 1);
-  double operator >>(double value) => _fetchPortraitWidth() / referenceWidth * value;
+  /// auto
+  double operator >(double value) => auto(value);
+  /// force
+  double operator >>(double value) => force(value);
 
-  bool isPad() {
+  /// 是否为 pad
+  /// 
+  /// 按平台类型再判断相应的宽度值
+  bool _isPad() {
     if (Platform.isIOS) {
       return _fetchPortraitWidth() >= 700;
     } else if (Platform.isAndroid) {
@@ -48,6 +80,7 @@ class FlutterFitsize implements Function {
     return false;
   }
 
+  /// 获取竖屏的宽度
   double _fetchPortraitWidth() {
     return _mediaQueryData.size.width < _mediaQueryData.size.height ? _mediaQueryData.size.width : _mediaQueryData.size.height;
   }
